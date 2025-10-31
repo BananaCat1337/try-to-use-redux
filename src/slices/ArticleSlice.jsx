@@ -7,9 +7,9 @@ export const articleSlice = createSlice({
                 slicedPosts: [],
                 photos: [],
                 users: [],
-                n: 3,
                 showButton: true,
                 bigCards: false,
+                n: 3,
                 selectedPost: null,
                 postColors: {},
         },
@@ -40,6 +40,10 @@ export const articleSlice = createSlice({
                         const { payload } = action;
                         state.n = payload;
                 },
+                setBigCards: (state, action) => {
+                        const { payload } = action;
+                        state.bigCards = payload;
+                },
                 showMorePosts: (state) => {
                         const increment = state.bigCards ? 2 : 3;
                         const newN = state.n + increment;
@@ -56,12 +60,9 @@ export const articleSlice = createSlice({
                         state.slicedPosts = state.posts.slice(0, 3);
                         state.showButton = state.posts.length > 3;
                 },
-                toggleCardsSize: (state) => {
-                        state.bigCards = !state.bigCards;
-                        const initialCount = state.bigCards ? 2 : 3;
-                        state.n = initialCount;
-                        state.slicedPosts = state.posts.slice(0, initialCount);
-                        state.showButton = state.posts.length > initialCount;
+                decrementN: (state, action) => {
+                        const { payload } = action;
+                        state.n += payload
                 },
                 setSelectedPost: (state, action) => {
                         state.selectedPost = action.payload;
@@ -82,13 +83,15 @@ export const {
         setUsers,
         setPhotos,
         setSlicedPosts,
+        decrementN,
+        setBigCards,
         setN,
         setBtnText,
         showMorePosts,
         resetPosts,
-        toggleCardsSize,
         setSelectedPost,
         changePostColor,
+        bigCards,
 } = articleSlice.actions;
 
 export default articleSlice.reducer;

@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
 import API from "../utils/api";
 import { useDispatch, useSelector } from "react-redux";
-import { setPosts, setSlicedPosts, showMorePosts, toggleCardsSize, setSelectedPost, changePostColor } from "../slices/ArticleSlice";
+import { setPosts, setBigCards, decrementN, setSlicedPosts, setN, showMorePosts, setSelectedPost, changePostColor } from "../slices/ArticleSlice";
 import postBackup from "../backups/postsBackup";
 
 export default function Home() {
         const dispatch = useDispatch();
-        const { posts, slicedPosts, showButton, btnText, bigCards, selectedPost, postColors } = useSelector(({ article }) => article);
+        const { posts, slicedPosts, showButton, btnText, n, bigCards, selectedPost, postColors } = useSelector(({ article }) => article);
         const [isModalOpen, setIsModalOpen] = useState(false);
 
         useEffect(() => {
@@ -21,6 +21,7 @@ export default function Home() {
                 dispatch(setPosts(postBackup));
                 fetchData();
         }, []);
+
 
         const handleViewClick = (post) => {
                 dispatch(setSelectedPost(post));
@@ -42,6 +43,10 @@ export default function Home() {
                 }
         };
 
+        useEffect(() => {
+
+        }, [bigCards])
+
         return (
                 <>
                         <div className={`flex justify-center items-center h-full ${isModalOpen ? 'opacity-50' : ''}`}>
@@ -52,59 +57,74 @@ export default function Home() {
                                                 <div className="flex gap-2">
                                                         <button
                                                                 className="bg-blue-500 text-white flex justify-center items-center px-4"
-                                                                onClick={() => dispatch(toggleCardsSize())}
+                                                                onClick={() => {
+                                                                        if (!bigCards) {
+                                                                                
+                                                                                dispatch(setBigCards(true))
+                                                                                console.log(bigCards);
+                                                                                // dispatch(setN(n - 1))
+                                                                                dispatch(setSlicedPosts(posts.slice(0, n)))
+                                                                        } else {
+                                                                                
+                                                                                dispatch(setBigCards(false))
+                                                                                console.log(bigCards);
+                                                                                dispatch(setN(n - 1))
+                                                                                dispatch(setSlicedPosts(posts.slice(0, n)))
+                                                                        }
+                                                                }
+                                                                }
                                                         >
-                                                                {bigCards ? "Make Small Cards" : "Make Big Cards"}
-                                                        </button>
-                                                        <button className="bg-blue-500 text-white flex justify-center items-center px-4">Add Articles</button>
-                                                </div>
+                                                        {bigCards ? "Make Small Cards" : "Make Big Cards"}
+                                                </button>
+                                                <button className="bg-blue-500 text-white flex justify-center items-center px-4">Add Articles</button>
                                         </div>
-                                        <div className="flex justify-center items-center h-full">
-                                                <div className="flex flex-col h-full items-center w-[80%]">
-                                                        <div className="flex flex-wrap items-center justify-center gap-5 w-full h-full">
-                                                                {slicedPosts.map((el) => (
-                                                                        <div className={`flex ${bigCards ? "basis-[48%]" : "basis-[30%]"} h-[28%] ${postColors[el.id] || 'bg-[rgb(204,204,204)]'} justify-center items-center`}>
-                                                                                <div className="flex flex-col w-[90%] h-[70%] justify-around">
-                                                                                        <div className="h-[70%]">
-                                                                                                <div className="line-clamp-1 font-bold text-[32px] w-[60%]">{el.title}</div>
-                                                                                                <div className="line-clamp-3 w-[70%]">{el.body}</div>
+                                </div>
+                                <div className="flex justify-center items-center h-full">
+                                        <div className="flex flex-col h-full items-center w-[80%]">
+                                                <div className="flex flex-wrap items-center justify-center gap-5 w-full h-full">
+                                                        {slicedPosts.map((el) => (
+                                                                <div className={`flex ${bigCards ? "basis-[48%]" : "basis-[30%]"} h-[28%] ${postColors[el.id] || 'bg-[rgb(204,204,204)]'} justify-center items-center`}>
+                                                                        <div className="flex flex-col w-[90%] h-[70%] justify-around">
+                                                                                <div className="h-[70%]">
+                                                                                        <div className="line-clamp-1 font-bold text-[32px] w-[60%]">{el.title}</div>
+                                                                                        <div className="line-clamp-3 w-[70%]">{el.body}</div>
+                                                                                </div>
+                                                                                <div className="flex text-[rgb(126,127,131)] w-[40%] h-[17%] border border-[rgb(126,127,131)] rounded-sm">
+                                                                                        <div
+                                                                                                className="border-r border-[rgb(126,127,131)] w-[30%] flex justify-center items-center cursor-pointer select-none"
+                                                                                                onClick={() => handleViewClick(el)}
+                                                                                        >
+                                                                                                View
                                                                                         </div>
-                                                                                        <div className="flex text-[rgb(126,127,131)] w-[40%] h-[17%] border border-[rgb(126,127,131)] rounded-sm">
-                                                                                                <div
-                                                                                                        className="border-r border-[rgb(126,127,131)] w-[30%] flex justify-center items-center cursor-pointer select-none"
-                                                                                                        onClick={() => handleViewClick(el)}
-                                                                                                >
-                                                                                                        View
-                                                                                                </div>
-                                                                                                <div
-                                                                                                        className="w-[70%] flex justify-center items-center cursor-pointer select-none"
-                                                                                                        onClick={() => handleColorChange(el.id)}
-                                                                                                >
-                                                                                                        Change Color
-                                                                                                </div>
+                                                                                        <div
+                                                                                                className="w-[70%] flex justify-center items-center cursor-pointer select-none"
+                                                                                                onClick={() => handleColorChange(el.id)}
+                                                                                        >
+                                                                                                Change Color
                                                                                         </div>
                                                                                 </div>
                                                                         </div>
-                                                                ))}
-                                                                {showButton && (
-                                                                        <div className="cursor-pointer bg-blue-500 rounded-lg px-8 py-3 text-gray-700 font-medium select-none">
-                                                                                <button
-                                                                                        className="cursor-pointer"
-                                                                                        onClick={() => {
-                                                                                                dispatch(showMorePosts());
-                                                                                        }}
-                                                                                >
-                                                                                        Show More
-                                                                                </button>
-                                                                        </div>
-                                                                )}
-                                                        </div>
+                                                                </div>
+                                                        ))}
+                                                        {showButton && (
+                                                                <div className="cursor-pointer bg-blue-500 rounded-lg px-8 py-3 text-gray-700 font-medium select-none">
+                                                                        <button
+                                                                                className="cursor-pointer"
+                                                                                onClick={() => {
+                                                                                        dispatch(showMorePosts());
+                                                                                }}
+                                                                        >
+                                                                                Show More
+                                                                        </button>
+                                                                </div>
+                                                        )}
                                                 </div>
                                         </div>
                                 </div>
                         </div>
+                </div >
 
-                        {isModalOpen && selectedPost && (
+                        { isModalOpen && selectedPost && (
                                 <div
                                         className="fixed inset-0 flex justify-center items-center z-50 p-4"
                                         onClick={handleBackdropClick}
@@ -130,7 +150,8 @@ export default function Home() {
                                                 </div>
                                         </div>
                                 </div>
-                        )}
+                        )
+}
                 </>
         );
 }
