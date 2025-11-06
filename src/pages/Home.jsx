@@ -21,7 +21,14 @@ export default function Home() {
                 dispatch(setPosts(postBackup));
                 fetchData();
         }, []);
-
+        //  useEffect(() => {
+        //         dispatch(showMorePosts())
+        // //         dispatch(setN(3))
+        // //     if(slicedPosts.length === 3 && bigCards) {
+        // //         dispatch(setSlicedPosts(posts.slice(0, 2)))
+        // //     }
+            
+        //  }, [bigCards])
 
         const handleViewClick = (post) => {
                 dispatch(setSelectedPost(post));
@@ -62,13 +69,14 @@ export default function Home() {
                                                                                 
                                                                                 dispatch(setBigCards(true))
                                                                                 console.log(bigCards);
-                                                                                // dispatch(setN(n - 1))
+                                                                                dispatch(setN(n - 1))
+                                                                                console.log(n)
                                                                                 dispatch(setSlicedPosts(posts.slice(0, n)))
-                                                                        } else {
+                                                                        } else {        
                                                                                 
                                                                                 dispatch(setBigCards(false))
                                                                                 console.log(bigCards);
-                                                                                dispatch(setN(n - 1))
+                                                                                dispatch(setN(n + 1))
                                                                                 dispatch(setSlicedPosts(posts.slice(0, n)))
                                                                         }
                                                                 }

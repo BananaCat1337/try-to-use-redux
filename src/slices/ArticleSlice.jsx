@@ -45,6 +45,7 @@ export const articleSlice = createSlice({
                         state.bigCards = payload;
                 },
                 showMorePosts: (state) => {
+                        console.log(state.bigCards)
                         const increment = state.bigCards ? 2 : 3;
                         const newN = state.n + increment;
                         state.n = newN;
