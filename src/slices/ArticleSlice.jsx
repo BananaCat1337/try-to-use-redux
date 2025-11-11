@@ -11,7 +11,9 @@ export const articleSlice = createSlice({
                 bigCards: false,
                 n: 3,
                 selectedPost: null,
+                selectedUser: null,
                 postColors: {},
+                initialMaxId: 100,
         },
         reducers: {
                 setPosts: (state, action) => {
@@ -19,10 +21,58 @@ export const articleSlice = createSlice({
                         state.posts = payload;
                         state.slicedPosts = payload.slice(0, state.n);
                         state.showButton = payload.length > state.n;
+                        if (payload.length > 0) {
+                                const maxId = Math.max(...payload.map(p => p.id));
+                                state.initialMaxId = maxId;
+                        }
                 },
                 setUsers: (state, action) => {
                         const { payload } = action;
                         state.users = payload;
+                        state.slicedPosts = payload.slice(0, state.n);
+                        state.showButton = payload.length > state.n;
+                        if (payload.length > 0) {
+                                const maxId = Math.max(...payload.map(u => u.id));
+                                state.initialMaxId = maxId;
+                        }
+                },
+                setSelectedUser: (state, action) => {
+                        state.selectedUser = action.payload;
+                },
+                addUser: (state, action) => {
+                        const { name, username, email, phone, website } = action.payload;
+                        const maxId = state.users.length > 0 
+                                ? Math.max(...state.users.map(u => u.id)) 
+                                : 0;
+                        const newUser = {
+                                id: maxId + 1,
+                                name,
+                                username,
+                                email,
+                                phone,
+                                website,
+                        };
+                        state.users.push(newUser);
+                        state.slicedPosts = state.users.slice(0, state.n);
+                        state.showButton = state.users.length > state.n;
+                },
+                updateUser: (state, action) => {
+                        const { id, name, username, email, phone, website } = action.payload;
+                        const index = state.users.findIndex(u => u.id === id);
+                        if (index !== -1) {
+                                state.users[index] = { ...state.users[index], name, username, email, phone, website };
+                                state.slicedPosts = state.users.slice(0, state.n);
+                        }
+                },
+                deleteUser: (state, action) => {
+                        const { id } = action.payload;
+                        state.users = state.users.filter(u => u.id !== id);
+                        state.slicedPosts = state.users.slice(0, state.n);
+                        state.showButton = state.users.length > state.n;
+                        if (state.n > state.users.length) {
+                                state.n = state.users.length;
+                                state.slicedPosts = state.users.slice(0, state.n);
+                        }
                 },
                 setBtnText: (state, action) => {
                         const { payload } = action;
@@ -50,9 +100,10 @@ export const articleSlice = createSlice({
                         const newN = state.n + increment;
                         state.n = newN;
 
-                        state.slicedPosts = state.posts.slice(0, newN);
+                        const data = state.posts.length >= state.users.length ? state.posts : state.users;
+                        state.slicedPosts = data.slice(0, newN);
 
-                        if (newN >= state.posts.length) {
+                        if (newN >= data.length) {
                                 state.showButton = false;
                         }
                 },
@@ -76,6 +127,39 @@ export const articleSlice = createSlice({
                         const nextIndex = (currentIndex + 1) % colors.length;
                         state.postColors[postId] = colors[nextIndex];
                 },
+                addPost: (state, action) => {
+                        const { title, body } = action.payload;
+                        const maxId = state.posts.length > 0 
+                                ? Math.max(...state.posts.map(p => p.id)) 
+                                : 0;
+                        const newPost = {
+                                id: maxId + 1,
+                                title,
+                                body,
+                                userId: 1
+                        };
+                        state.posts.push(newPost);
+                        state.slicedPosts = state.posts.slice(0, state.n);
+                        state.showButton = state.posts.length > state.n;
+                },
+                updatePost: (state, action) => {
+                        const { id, title, body } = action.payload;
+                        const index = state.posts.findIndex(p => p.id === id);
+                        if (index !== -1) {
+                                state.posts[index] = { ...state.posts[index], title, body };
+                                state.slicedPosts = state.posts.slice(0, state.n);
+                        }
+                },
+                deletePost: (state, action) => {
+                        const { id } = action.payload;
+                        state.posts = state.posts.filter(p => p.id !== id);
+                        state.slicedPosts = state.posts.slice(0, state.n);
+                        state.showButton = state.posts.length > state.n;
+                        if (state.n > state.posts.length) {
+                                state.n = state.posts.length;
+                                state.slicedPosts = state.posts.slice(0, state.n);
+                        }
+                },
         },
 });
 
@@ -91,7 +175,14 @@ export const {
         showMorePosts,
         resetPosts,
         setSelectedPost,
+        setSelectedUser,
         changePostColor,
+        addPost,
+        updatePost,
+        deletePost,
+        addUser,
+        updateUser,
+        deleteUser,
         bigCards,
 } = articleSlice.actions;
 
